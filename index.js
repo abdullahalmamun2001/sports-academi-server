@@ -43,6 +43,11 @@ async function run() {
       
     })
 
+    app.get('/user',async(req,res)=>{
+      const result=await usersCollection.find().toArray()
+      res.send(result)
+    })
+
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
