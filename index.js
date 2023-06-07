@@ -28,7 +28,20 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
+    const usersCollection = client.db("sports-ecademy").collection('users');
 
+    app.put('/user/:email', async (req, res) => {
+      const user=req.body;
+      const email=req.params.email;
+      const query={email:email}
+      const doc={
+        $set:user
+      }
+      const option={upsert:true}
+      const result=await usersCollection.updateOne(query,doc,option)
+      res.send(result)
+      
+    })
 
 
     // Connect the client to the server	(optional starting in v4.7)
