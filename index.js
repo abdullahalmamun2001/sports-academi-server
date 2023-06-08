@@ -12,7 +12,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.kbqlzif.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -29,25 +29,63 @@ async function run() {
   try {
 
     const usersCollection = client.db("sports-ecademy").collection('users');
+    const classesCollection = client.db("sports-ecademy").collection('classes');
+    // user data save apis 
+
 
     app.put('/user/:email', async (req, res) => {
-      const user=req.body;
-      const email=req.params.email;
-      const query={email:email}
-      const doc={
-        $set:user
+      const user = req.body;
+      const email = req.params.email;
+      const query = { email: email }
+      const doc = {
+        $set: user
       }
-      const option={upsert:true}
-      const result=await usersCollection.updateOne(query,doc,option)
+      const option = { upsert: true }
+      const result = await usersCollection.updateOne(query, doc, option)
       res.send(result)
+
+    })
+    app.patch('/user/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set:{
+          role: 'admin'
+        }
+      }
       
+      const result = await usersCollection.updateOne(query, doc)
+      res.send(result)
+
+    })
+    app.patch('/user/admin/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set:{
+          role:'instructor'
+        }
+      }
+      
+      const result = await usersCollection.updateOne(query, doc)
+      res.send(result)
+
     })
 
-    app.get('/user',async(req,res)=>{
-      const result=await usersCollection.find().toArray()
+    app.get('/user', async (req, res) => {
+      const result = await usersCollection.find().toArray()
       res.send(result)
     })
 
+    // add class added api 
+
+    app.post('/class', async (req, res) => {
+      const user = req.body;
+      const result=await classesCollection.insertOne(user)
+      res.send(result)
+
+    })
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
@@ -62,8 +100,8 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('server is running')
-  })
-  app.listen(port, () => {
-    console.log(`server is running with port ${port}`);
-  })
+  res.send('server is running')
+})
+app.listen(port, () => {
+  console.log(`server is running with port ${port}`);
+})
