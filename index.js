@@ -43,6 +43,9 @@ async function run() {
 
     const usersCollection = client.db("sports-ecademy").collection('users');
     const classesCollection = client.db("sports-ecademy").collection('classes');
+    const bookingCollection = client.db("sports-ecademy").collection('booking');
+
+
     // user data save apis 
 
 
@@ -93,6 +96,22 @@ async function run() {
 
     // add class added api 
 
+
+    app.patch('/user/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set: {
+         status: 'approve'
+        }
+      }
+
+      const result = await classesCollection.updateOne(query, doc)
+      res.send(result)
+    })
+
+
     app.post('/class', async (req, res) => {
       const user = req.body;
       const result = await classesCollection.insertOne(user)
@@ -119,6 +138,23 @@ async function run() {
       res.send(result)
     })
 
+
+
+    // booking collection api 
+
+    // app.put('/class/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) }
+    //   const doc = {
+    //     $set: {
+    //       status: 'approve'
+    //     }
+    //   }
+
+    //   const result = await classesCollection.updateOne(query, doc)
+    //   res.send(result)
+
+    // })
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
