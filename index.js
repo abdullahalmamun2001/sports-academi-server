@@ -43,7 +43,7 @@ async function run() {
 
     const usersCollection = client.db("sports-ecademy").collection('users');
     const classesCollection = client.db("sports-ecademy").collection('classes');
-    const bookingCollection = client.db("sports-ecademy").collection('booking');
+    const purchaseCollection = client.db("sports-ecademy").collection('purchase');
 
 
     // user data save apis 
@@ -181,6 +181,36 @@ async function run() {
 
 
 
+
+    // purchase collection api 
+
+    app.put('/purchase/:id', async (req, res) => {
+      const user = req.body;
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set: user
+      }
+      const option = { upsert: true }
+      const result = await purchaseCollection.updateOne(query, doc, option)
+      res.send(result)
+      console.log(result);
+    })
+
+    app.post('/purchase',async(req,res)=>{
+      const body=req.body;
+      res.send(await purchaseCollection.insertOne(body))
+    })
+
+    app.get('/purchase', async (req, res) => {
+      const result = await purchaseCollection.find().toArray()
+      res.send(result)
+    })
+    // app.post('/purchase', async (req, res) => {
+    //   const user = req.body;
+    //   const result = await purchaseCollection.insertOne(user)
+    //   res.send(result)
+    // })
     // booking collection api 
 
     // app.put('/class/:id', async (req, res) => {
