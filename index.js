@@ -97,7 +97,7 @@ async function run() {
     // add class added api 
 
 
-    app.patch('/user/:id', async (req, res) => {
+    app.patch('/class/approve/:id', async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -106,8 +106,37 @@ async function run() {
          status: 'approve'
         }
       }
+      const option = { upsert: true }
+      const result = await classesCollection.updateOne(query, doc,option)
+      res.send(result)
+    })
 
-      const result = await classesCollection.updateOne(query, doc)
+
+    app.patch('/class/denied/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set: {
+         status: 'denied'
+        }
+      }
+      const option = { upsert: true }
+      const result = await classesCollection.updateOne(query, doc,option)
+      res.send(result)
+    })
+
+    app.patch('/class/feedback/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set: {
+         status: 'denied'
+        }
+      }
+      const option = { upsert: true }
+      const result = await classesCollection.updateOne(query, doc,option)
       res.send(result)
     })
 
@@ -132,6 +161,18 @@ async function run() {
       res.send(result)
 
     })
+
+
+    app.get('/classes',async(req,res)=>{
+      const status=req.query.status;
+      if(!status){
+        res.send([])
+      }
+      const query={status:status}
+      const result=await classesCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
     app.get('/class', async (req, res) => {
       const result = await classesCollection.find().toArray()
