@@ -10,7 +10,20 @@ const port = process.env.PORT || 5000;
 app.use(cors())
 app.use(express.json())
 
-
+const verifyJWT = (req,res,next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    res.status(401).send({ error: true, message: 'unauthorized function' })
+  }
+  const token = authorization.split(' ')[1]
+  jwt.verify(token, process.env.JWT_web_token, (err, decode) => {
+    if (err) {
+      res.status(401).send({ error: true, message: 'unauthorized function' })
+    }
+    req.decode = decode;
+    next();
+  })
+}
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.kbqlzif.mongodb.net/?retryWrites=true&w=majority`;
@@ -50,11 +63,11 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const doc = {
-        $set:{
+        $set: {
           role: 'admin'
         }
       }
-      
+
       const result = await usersCollection.updateOne(query, doc)
       res.send(result)
 
@@ -63,11 +76,11 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const doc = {
-        $set:{
-          role:'instructor'
+        $set: {
+          role: 'instructor'
         }
       }
-      
+
       const result = await usersCollection.updateOne(query, doc)
       res.send(result)
 
@@ -82,7 +95,7 @@ async function run() {
 
     app.post('/class', async (req, res) => {
       const user = req.body;
-      const result=await classesCollection.insertOne(user)
+      const result = await classesCollection.insertOne(user)
       res.send(result)
 
     })
@@ -91,7 +104,7 @@ async function run() {
     app.put('/user/:id', async (req, res) => {
       const user = req.body;
       const id = req.params.id;
-      const query = { _id:new ObjectId(id) }
+      const query = { _id: new ObjectId(id) }
       const doc = {
         $set: user
       }
@@ -99,6 +112,11 @@ async function run() {
       const result = await classesCollection.updateOne(query, doc, option)
       res.send(result)
 
+    })
+
+    app.get('/class', async (req, res) => {
+      const result = await classesCollection.find().toArray()
+      res.send(result)
     })
 
     // Connect the client to the server	(optional starting in v4.7)
