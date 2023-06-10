@@ -1,5 +1,6 @@
 const express = require('express');
-const app = express()
+const app = express();
+const stripe = require("stripe")(process.env.Payment_Secret_key);
 require('dotenv').config()
 const cors = require('cors');
 
@@ -216,7 +217,19 @@ async function run() {
     })
 
 
-
+    // card api 
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price} = req.body;
+      const amount=price*100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount:amount,
+        currency: "usd",
+        payment_method_types:['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    })
 
     await client.connect();
     // Send a ping to confirm a successful connection
