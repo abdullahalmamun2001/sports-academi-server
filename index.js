@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
-const stripe = require("stripe")(process.env.Payment_Secret_key);
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
+const stripe = require("stripe")(process.env.Payment_Secret_key);
+
 const cors = require('cors');
 
 const port = process.env.PORT || 5000;
@@ -17,11 +19,11 @@ const verifyJWT = (req, res, next) => {
     res.status(401).send({ error: true, message: 'unauthorized function' })
   }
   const token = authorization.split(' ')[1]
-  jwt.verify(token, process.env.JWT_web_token, (err, decode) => {
+  jwt.verify(token, process.env.JWT_web_token, (err, decoded) => {
     if (err) {
       res.status(401).send({ error: true, message: 'unauthorized function' })
     }
-    req.decode = decode;
+    req.decoded = decoded;
     next();
   })
 }
@@ -46,9 +48,39 @@ async function run() {
     const classesCollection = client.db("sports-ecademy").collection('classes');
     const purchaseCollection = client.db("sports-ecademy").collection('purchase');
 
+    // jwt apis 
+    // console.log(process.env.JWT_web_token);
+    app.post('/jwt', (req, res) => {
 
+      const body = req.body;
+      const token = jwt.sign(body, process.env.JWT_web_token, { expiresIn: '1h' })
+      res.send(token)
+    })
     // user data save apis 
 
+
+    // app.get('/user/admin/:email', verifyJWT, async (req, res) => {
+    //   const email = req.params.email;
+    //   const decodedEmail = req.decoded.email;
+
+    //   if (email !== decodedEmail) {
+    //     return ({ admin: false })
+    //   }
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   const result = { admin: user?.role === 'admin' }
+    //   res.send(result)
+    // })
+    // app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+    //   const email = req.params.email;
+
+      
+
+    //   const query = { email: email }
+    //   const user = await usersCollection.findOne(query);
+    //   const result = { admin: user?.role === 'admin' }
+    //   res.send(result);
+    // })
 
     app.put('/user/:email', async (req, res) => {
       const user = req.body;
@@ -180,10 +212,25 @@ async function run() {
       res.send(result)
     })
 
+    
+    app.get('/class/:id', async (req, res) => {
+      const id=req.params.id;
+      const query={_id:new ObjectId(id)}
+      const result = await classesCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
 
 
     // purchase collection api 
+    app.get('/pay/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) }
+      res.send(await purchaseCollection.find(query).toArray())
+    })
+
 
     app.put('/purchase/:id', async (req, res) => {
       const user = req.body;
@@ -217,21 +264,23 @@ async function run() {
     })
 
 
-    // card api 
+    // card payment api 
     app.post("/create-payment-intent", async (req, res) => {
-      const { price} = req.body;
-      const amount=price*100;
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount:amount,
-        currency: "usd",
-        payment_method_types:['card']
-      });
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
+      const { price } = req.body;
+      if (price) {
+        const amount = price * 100;
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ['card']
+        });
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      }
     })
 
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
