@@ -47,6 +47,7 @@ async function run() {
     const usersCollection = client.db("sports-ecademy").collection('users');
     const classesCollection = client.db("sports-ecademy").collection('classes');
     const purchaseCollection = client.db("sports-ecademy").collection('purchase');
+    const payCollection = client.db("sports-ecademy").collection('pay');
 
     // jwt apis 
     // console.log(process.env.JWT_web_token);
@@ -257,7 +258,7 @@ async function run() {
     })
 
     app.get('/purchase/:email', async (req, res) => {
-      const id = req.params.email;
+      const email = req.params.email;
       console.log(id);
       const query = { email:email }
       res.send(await purchaseCollection.find(query).toArray())
@@ -296,6 +297,13 @@ async function run() {
     })
 
 
+    // pay history 
+
+    app.post('/payhistory', async (req, res) => {
+      const body = req.body;
+      res.send(await payCollection.insertOne(body))
+    })
+
     // card payment api 
     app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
@@ -310,6 +318,12 @@ async function run() {
           clientSecret: paymentIntent.client_secret,
         });
       }
+    })
+
+    app.post('/payments',async(req,res)=>{
+      const payment=req.body;
+      const result=await payCollection.insertOne(payment)
+      res.send(result)
     })
 
     // await client.connect();
