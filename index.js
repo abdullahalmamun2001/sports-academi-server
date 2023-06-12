@@ -212,16 +212,27 @@ async function run() {
       res.send(result)
     })
 
-    
+
     app.get('/class/:id', async (req, res) => {
       const id=req.params.id;
       const query={_id:new ObjectId(id)}
       const result = await classesCollection.find(query).toArray()
       res.send(result)
     })
+    // class update api 
 
+    app.put('/update/:id', async (req, res) => {
+      const user = req.body;
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const doc = {
+        $set: user
+      }
+      const option = { upsert: true }
+      const result = await classesCollection.updateOne(query, doc, option)
+      res.send(result)
 
-
+    })
 
     // purchase collection api 
     app.get('/pay/:id', async (req, res) => {
