@@ -59,18 +59,32 @@ async function run() {
     // user data save apis 
 
 
-    // app.get('/user/admin/:email', verifyJWT, async (req, res) => {
-    //   const email = req.params.email;
-    //   const decodedEmail = req.decoded.email;
+    app.get('/user/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const decodedEmail = req.decoded.email;
 
-    //   if (email !== decodedEmail) {
-    //     return ({ admin: false })
-    //   }
-    //   const query = { email: email };
-    //   const user = await usersCollection.findOne(query);
-    //   const result = { admin: user?.role === 'admin' }
-    //   res.send(result)
-    // })
+      if (email !== decodedEmail) {
+        return ({ admin: false })
+      }
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === 'admin' }
+      res.send(result)
+    })
+    app.get('/user/instructor/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const decodedEmail = req.decoded.email;
+
+      if (email !== decodedEmail) {
+        return ({ instructor: false })
+      }
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { instructor: user?.role === 'instructor' }
+      res.send(result)
+    })
+
+
     // app.get('/users/admin/:email', verifyJWT, async (req, res) => {
     //   const email = req.params.email;
 
@@ -239,6 +253,13 @@ async function run() {
       const id = req.params.id;
       console.log(id);
       const query = { _id: new ObjectId(id) }
+      res.send(await purchaseCollection.find(query).toArray())
+    })
+
+    app.get('/purchase/:email', async (req, res) => {
+      const id = req.params.email;
+      console.log(id);
+      const query = { email:email }
       res.send(await purchaseCollection.find(query).toArray())
     })
 
