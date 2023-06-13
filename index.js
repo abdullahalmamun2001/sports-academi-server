@@ -60,7 +60,7 @@ async function run() {
     // user data save apis 
 
 
-    app.get('/user/admin/:email', verifyJWT, async (req, res) => {
+    app.get('/user/admin/:email',  async (req, res) => {
       const email = req.params.email;
       const decodedEmail = req.decoded.email;
 
@@ -72,7 +72,7 @@ async function run() {
       const result = { admin: user?.role === 'admin' }
       res.send(result)
     })
-    app.get('/user/instructor/:email', verifyJWT, async (req, res) => {
+    app.get('/user/instructor/:email', async (req, res) => {
       const email = req.params.email;
       const decodedEmail = req.decoded.email;
 
@@ -97,7 +97,7 @@ async function run() {
     //   res.send(result);
     // })
 
-    app.put('/user/:email', verifyJWT, async (req, res) => {
+    app.put('/user/:email',  async (req, res) => {
       const user = req.body;
       const email = req.params.email;
       const query = { email: email }
@@ -109,7 +109,7 @@ async function run() {
       res.send(result)
 
     })
-    app.patch('/user/:id', verifyJWT, async (req, res) => {
+    app.patch('/user/:id',  async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -123,7 +123,7 @@ async function run() {
       res.send(result)
 
     })
-    app.patch('/user/admin/:id', verifyJWT, async (req, res) => {
+    app.patch('/user/admin/:id',  async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const doc = {
@@ -145,7 +145,7 @@ async function run() {
     // add class added api 
 
 
-    app.patch('/class/approve/:id', verifyJWT, async (req, res) => {
+    app.patch('/class/approve/:id', async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -160,7 +160,7 @@ async function run() {
     })
 
 
-    app.patch('/class/denied/:id', verifyJWT, async (req, res) => {
+    app.patch('/class/denied/:id', async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -174,14 +174,13 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/class/feedback/:id', verifyJWT, async (req, res) => {
+    app.patch('/class/feedback/:id',  async (req, res) => {
 
       const id = req.params.id;
+      const body=req.body;
       const query = { _id: new ObjectId(id) }
       const doc = {
-        $set: {
-          status: 'denied'
-        }
+        $set: body
       }
       const option = { upsert: true }
       const result = await classesCollection.updateOne(query, doc, option)
@@ -197,7 +196,7 @@ async function run() {
     })
 
 
-    app.put('/user/:id', verifyJWT, async (req, res) => {
+    app.put('/user/:id',  async (req, res) => {
       const user = req.body;
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -231,6 +230,18 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result=await classesCollection.findOne(query);
+      res.send(result)
+    })
+    app.put("/enrolled/:id", async (req, res) => {
+      const id = req.params.id;
+      const body=req.body;
+      const query = { _id: new ObjectId(id) }
+
+      const option={upsert:true}
+      const updateDoc={
+        $set:body
+      }
+      const result=await classesCollection.updateOne(query,updateDoc,option);
       res.send(result)
     })
 
