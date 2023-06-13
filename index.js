@@ -89,7 +89,7 @@ async function run() {
     // app.get('/users/admin/:email', verifyJWT, async (req, res) => {
     //   const email = req.params.email;
 
-      
+
 
     //   const query = { email: email }
     //   const user = await usersCollection.findOne(query);
@@ -97,7 +97,7 @@ async function run() {
     //   res.send(result);
     // })
 
-    app.put('/user/:email',verifyJWT, async (req, res) => {
+    app.put('/user/:email', verifyJWT, async (req, res) => {
       const user = req.body;
       const email = req.params.email;
       const query = { email: email }
@@ -109,7 +109,7 @@ async function run() {
       res.send(result)
 
     })
-    app.patch('/user/:id',verifyJWT, async (req, res) => {
+    app.patch('/user/:id', verifyJWT, async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -123,7 +123,7 @@ async function run() {
       res.send(result)
 
     })
-    app.patch('/user/admin/:id',verifyJWT, async (req, res) => {
+    app.patch('/user/admin/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const doc = {
@@ -145,7 +145,7 @@ async function run() {
     // add class added api 
 
 
-    app.patch('/class/approve/:id',verifyJWT, async (req, res) => {
+    app.patch('/class/approve/:id', verifyJWT, async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -160,7 +160,7 @@ async function run() {
     })
 
 
-    app.patch('/class/denied/:id',verifyJWT, async (req, res) => {
+    app.patch('/class/denied/:id', verifyJWT, async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -174,7 +174,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/class/feedback/:id',verifyJWT, async (req, res) => {
+    app.patch('/class/feedback/:id', verifyJWT, async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -197,7 +197,7 @@ async function run() {
     })
 
 
-    app.put('/user/:id',verifyJWT, async (req, res) => {
+    app.put('/user/:id', verifyJWT, async (req, res) => {
       const user = req.body;
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -227,10 +227,17 @@ async function run() {
       res.send(result)
     })
 
+    app.get("/selected/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result=await classesCollection.findOne(query);
+      res.send(result)
+    })
+
 
     app.get('/class/:id', async (req, res) => {
-      const id=req.params.id;
-      const query={_id:new ObjectId(id)}
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
       const result = await classesCollection.find(query).toArray()
       res.send(result)
     })
@@ -260,7 +267,7 @@ async function run() {
     app.get('/purchase/:email', async (req, res) => {
       const email = req.params.email;
       console.log(id);
-      const query = { email:email }
+      const query = { email: email }
       res.send(await purchaseCollection.find(query).toArray())
     })
 
@@ -320,13 +327,13 @@ async function run() {
       }
     })
 
-    app.post('/payments',async(req,res)=>{
-      const payment=req.body;
-      const result=await payCollection.insertOne(payment)
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const result = await payCollection.insertOne(payment)
       res.send(result)
     })
 
-    app.get('/paymentshistory',async(req,res)=>{
+    app.get('/paymentshistory', async (req, res) => {
       res.send(await payCollection.find().toArray())
     })
 
